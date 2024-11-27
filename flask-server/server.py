@@ -1,6 +1,6 @@
 from flask import Flask
-import pandas as pd 
-import pyterrier as pt 
+import pandas as pd
+import pyterrier as pt
 
 app = Flask(__name__)
 @app.route("/search")
@@ -12,13 +12,16 @@ def search():
         pt.java.init()
     return str(pt.java.started())
 
-def index(): 
+def index():
+    '''
+    We won't need this function becuase I have the indexed folder already
+    '''
     files = pt.io.find_files("/data")
     indexer = pt.FilesIndexer("/data/g4g_index",
                             meta={"docno":20,"filename":1024,"title":1024},meta_tags={"title":"title"})
     indexref = indexer.index(files)
     index = pt.IndexFactory.of(indexref)
-    
+
 def model():
     queries = pd.DataFrame([["q1","python"], ["q2","nlp"]], columns=["qid","sql"])
     index = pt.IndexFactory.of("./g4g_index_index/data.properties")
