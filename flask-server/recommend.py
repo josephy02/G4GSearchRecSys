@@ -1,6 +1,6 @@
 from flask import Flask
-import pandas as pd 
-import pyterrier as pt 
+import pandas as pd
+import pyterrier as pt
 import numpy as np
 from scipy.sparse.linalg import svds
 from sklearn.preprocessing import MinMaxScaler
@@ -10,8 +10,10 @@ import operator
 app = Flask(__name__)
 @app.route("/recommend")
 
+
+
 def recommend():
-    #Change to your JDK path
+    #Change to your JDK path Joe is my yn
     return "hello world"
 
 if __name__ == "__main__":
