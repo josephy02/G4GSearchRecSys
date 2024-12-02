@@ -1,25 +1,39 @@
-import logo from './logo.svg';
-import './App.css';
+import React, { useState } from 'react';
+import SearchBar from './components/SearchBar';
+import SearchResults from './components/SearchResults';
+import Recommendations from './components/Recommendations';
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
-}
+const App = () => {
+    const [searchResults, setSearchResults] = useState([]);
+    const [recommendations, setRecommendations] = useState([]);
+
+    const handleSearch = async (query) => {
+        try {
+            const response = await fetch(`http://localhost:5000/search?query=${query}`);
+            const data = await response.json();
+            setSearchResults(data.results);
+        } catch (error) {
+            console.error('Error fetching search results:', error);
+        }
+    };
+
+    const handleClick = async (url) => {
+        try {
+            const response = await fetch(`http://localhost:5000/recommend?clicked_url=${encodeURIComponent(url)}`);
+            const data = await response.json();
+            setRecommendations(data.recommendations);
+        } catch (error) {
+            console.error('Error fetching recommendations:', error);
+        }
+    };
+
+    return (
+        <div>
+            <SearchBar onSearch={handleSearch} />
+            <SearchResults results={searchResults} onClick={handleClick} />
+            <Recommendations items={recommendations} />
+        </div>
+    );
+};
 
 export default App;
