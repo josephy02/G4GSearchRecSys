@@ -1,32 +1,115 @@
-# function for flatten
 import os
-import shutil
+import csv
+from bs4 import BeautifulSoup
+from pathlib import Path
+import re
 
-def flatten_folder(root_folder):
-    # Loop through all files and subdirectories in the root folder
-    for dirpath, dirnames, filenames in os.walk(root_folder):
-        # Skip the root folder itself
-        if dirpath == root_folder:
+def clean_folder_name(folder_name):
+    """Convert folder name to readable title."""
+    # Replace hyphens and underscores with spaces
+    clean_name = folder_name.replace('-', ' ').replace('_', ' ')
+    # Remove any trailing dots and text after them (from truncated names)
+    clean_name = re.sub(r'\.+.*$', '', clean_name)
+    # Capitalize words
+    clean_name = ' '.join(word.capitalize() for word in clean_name.split())
+    return clean_name
+
+def extract_text_from_html(file_path):
+    """Extract text content from HTML files."""
+    with open(file_path, 'r', encoding='utf-8', errors='ignore') as file:
+        soup = BeautifulSoup(file.read(), 'html.parser')
+
+        # Remove script and style elements
+        for script in soup(["script", "style"]):
+            script.decompose()
+
+        # Get the main content (adjusting for GeeksForGeeks structure)
+        main_content = (
+            soup.find('article') or
+            soup.find('div', class_='article-wrapper') or
+            soup.find('div', class_='entry-content') or
+            soup.find('div', class_='content')
+        )
+
+        if main_content:
+            text = main_content.get_text(separator=' ', strip=True)
+        else:
+            text = soup.get_text(separator=' ', strip=True)
+
+        # Extract title
+        title_elem = (
+            soup.find('h1', class_='article-title') or
+            soup.find('h1') or
+            soup.title
+        )
+        title = title_elem.get_text(strip=True) if title_elem else ''
+
+        return {
+            'title': title,
+            'content': text
+        }
+
+def clean_text(text):
+    """Clean extracted text."""
+    # Remove extra whitespace
+    text = re.sub(r'\s+', ' ', text)
+    # Remove special characters but keep basic punctuation
+    text = re.sub(r'[^\w\s.,!?-]', '', text)
+    return text.strip()
+
+def process_geeks_directory(root_folder, output_file):
+    """Process GeeksForGeeks directory structure and save to CSV."""
+    processed_data = []
+    doc_counter = 0
+
+    # Walk through the directory structure
+    for root, dirs, files in os.walk(root_folder):
+        # Skip the root directory itself
+        if root == root_folder:
             continue
 
-        # Move each file to the root folder
-        for file in filenames:
-            if file.lower().endswith(('.html', '.htm', '.pdf')):
-                src = os.path.join(dirpath, file)
-                dest = os.path.join(root_folder, file)
+        # Get the immediate parent folder name as the topic
+        topic_folder = os.path.basename(root)
+        topic = clean_folder_name(topic_folder)
 
-                # Handle duplicate file names
-                if os.path.exists(dest):
-                    base, ext = os.path.splitext(file)
-                    dest = os.path.join(root_folder, f"{base}_copy{ext}")
+        # Process index.html if it exists
+        if 'index.html' in files:
+            file_path = os.path.join(root, 'index.html')
+            try:
+                # Extract content
+                data = extract_text_from_html(file_path)
 
-                shutil.move(src, dest)
+                # Clean the extracted text
+                data['content'] = clean_text(data['content'])
+                data['title'] = clean_text(data['title'])
 
-        # Remove empty subdirectory
-        if not os.listdir(dirpath):
-            os.rmdir(dirpath)
+                # Add metadata
+                data['docid'] = f"{doc_counter}"
+                data['topic'] = topic
+                data['folder_path'] = root
+                data['relative_path'] = os.path.relpath(root, root_folder)
 
-# Replace with the path to your main folder
-root_folder = "/Users/joeyared/Desktop/INFO_376/geek"
-flatten_folder(root_folder)
-print("Folder flattened successfully!")
+                processed_data.append(data)
+                print(f"Processed: {topic} (ID: {data['docid']})")
+
+                doc_counter += 1  # Increment counter for next document
+
+            except Exception as e:
+                print(f"Error processing {file_path}: {str(e)}")
+
+    # Write to CSV
+    if processed_data:
+        fieldnames = ['docid', 'title', 'topic', 'content', 'folder_path', 'relative_path']
+        with open(output_file, 'w', newline='', encoding='utf-8') as csvfile:
+            writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+            writer.writeheader()
+            writer.writerows(processed_data)
+        print(f"\nSuccessfully saved {len(processed_data)} entries to {output_file}")
+    else:
+        print("No data was processed!")
+
+# Example usage
+if __name__ == "__main__":
+    input_folder = "/Users/joeyared/Desktop/INFO_376/geek"  # Replace with your folder path if different
+    output_file = "/Users/joeyared/Desktop/geeksforgeeks_articles.csv"
+    process_geeks_directory(input_folder, output_file)
