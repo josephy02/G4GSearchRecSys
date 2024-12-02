@@ -16,9 +16,8 @@ def main():
     # tf_idf = pt.BatchRetrieve(index, wmodel="TF_IDF")
     # tf_idf.transform(queries)
 
-    # Process results
     search_results = []
-    for i in range(min(10, len(results))):
+    for i in range(min(5, len(results))):
         filename = index.getMetaIndex().getItem("filename", results.docid[i])
         title = index.getMetaIndex().getItem("title", results.docid[i]).strip()
         if not title:
