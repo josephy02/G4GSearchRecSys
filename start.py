@@ -2,12 +2,13 @@ import pandas as pd
 import pyterrier as pt
 
 def main():
-    pt.java.set_java_home("C:\\Users\\Amrith\\.jdks\\temurin-11.0.16.1")
+    # pt.java.set_java_home("C:\\Users\\Amrith\\.jdks\\temurin-11.0.16.1")
     queries = pd.DataFrame([["q1","python"], ["q2","nlp"]], columns=["qid","query"])
-    index = pt.IndexFactory.of("C:\\Users\\Amrith\\Documents\\info376\\G4GSearchRecSys\\data\\geek_index\\data.properties")
+    # index = pt.IndexFactory.of("C:\\Users\\Amrith\\Documents\\info376\\G4GSearchRecSys\\data\\geek_index\\data.properties")
+    index = pt.IndexFactory.of("./data/geek_index/data.properties")
     bm_25 = pt.BatchRetrieve(index, wmodel="BM25")
 
-    # Create search query DataFrame    
+    # Create search query DataFrame
     # Load the index and perform search
     results = bm_25.transform(queries)
 
@@ -18,10 +19,10 @@ def main():
         title = index.getMetaIndex().getItem("title", results.docid[i]).strip()
         if not title:
             title = filename
-        
+
         url = f"https://{filename.replace('./', '')}"
         search_results.append({"url": url, "title": title})
-    
+
     print(search_results)
 
 if __name__ == "__main__":
