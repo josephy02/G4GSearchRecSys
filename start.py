@@ -12,6 +12,7 @@ def main():
     # Load the index and perform search
     results = bm_25.transform(queries)
     print(results)
+    results.to_csv()
     # index = pt.IndexFactory.of("./pg_index/data.properties")
     # tf_idf = pt.BatchRetrieve(index, wmodel="TF_IDF")
     # tf_idf.transform(queries)
