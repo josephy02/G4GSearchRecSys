@@ -11,6 +11,10 @@ def main():
     # Create search query DataFrame
     # Load the index and perform search
     results = bm_25.transform(queries)
+    print(results)
+    # index = pt.IndexFactory.of("./pg_index/data.properties")
+    # tf_idf = pt.BatchRetrieve(index, wmodel="TF_IDF")
+    # tf_idf.transform(queries)
 
     # Process results
     search_results = []
@@ -23,7 +27,11 @@ def main():
         url = f"https://{filename.replace('./', '')}"
         search_results.append({"url": url, "title": title})
 
+
     print(search_results)
+    # print(index.getMetaIndex().getKeys())
+    # print(index.getMetaIndex().getItem("filename", 15))
+    # print(index.getMetaIndex().getItem("title", 15))
 
 if __name__ == "__main__":
     main()
