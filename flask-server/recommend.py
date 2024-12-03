@@ -1,98 +1,85 @@
-from flask import Flask
+from flask import Flask, jsonify
 import pandas as pd
-import pyterrier as pt
 import numpy as np
-from scipy.sparse.linalg import svds
-from sklearn.preprocessing import MinMaxScaler
+from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
-import operator
-from scipy.sparse.linalg import svds
-
 
 app = Flask(__name__)
-@app.route("/recommend")
 
-
+@app.route("/recommend", methods=["GET"])
 def recommend():
-# -*- coding: utf-8 -*-
-#load in data
-    articles = pd.read_csv('data\geeksforgeeks_articles.csv', encoding='latin-1')
-    articles.head(5)
+    # Load and prepare data
+    articles = pd.read_csv(r'C:\Users\vvaib\Documents\Info376\G4GSearchRecSys\data\geeksforgeeks_articles.csv', encoding='latin-1', nrows=10000)
 
-    # Check for duplicates in the index columns
-    duplicates = articles.duplicated(subset=['url', 'title'], keep=False)
-    if duplicates.any():
-        articles = articles.groupby(['url', 'title'])['rating'].mean().reset_index()
+    # Remove duplicates and reset index
+    articles = articles.drop_duplicates(subset=['url', 'title']).reset_index(drop=True)
 
+    # Store original titles and URLs after duplicate removal
+    titles = articles['title'].values
+    urls = articles['url'].values
 
-    # Now, the pivot operation should work without errors
-    u_t = articles.pivot(index='url', columns='title', values='rating').fillna(0)
+    # Create TF-IDF vectorizer
+    tfidf = TfidfVectorizer(stop_words='english')
 
-    u_t.shape
+    # Create TF-IDF matrix for titles
+    title_tfidf_matrix = tfidf.fit_transform(titles)
 
-    u_t.head(5)
+    # Calculate similarity matrix
+    similarity_matrix = cosine_similarity(title_tfidf_matrix)
 
-    # Step-3: normalize ratings.
-    data = u_t.values
-    ratings_mean = np.mean(data,axis=1)
-    normalizedRating = data - ratings_mean.reshape(-1,1)
+    # Create DataFrame for similarity matrix with proper indices
+    similarity_df = pd.DataFrame(
+        similarity_matrix,
+        index=titles,
+        columns=titles
+    )
 
-    normalizedRating
+    # Recommend articles based on title similarity using TF-IDF and cosine similarity
+    def recommend_similar_articles(title, num_recommendations=5):
+        """
+        Recommend articles based on title similarity using TF-IDF and cosine similarity.
 
+        Parameters:
+        title (str): The title of the article to base recommendations on
+        num_recommendations (int): Number of similar articles to recommend
 
-
-    # Step-4: SVD (matrix factorization)
-    U, sigma, Vt = svds(normalizedRating, k=100)
-
-    # Step-5: get the diagonal entries of sigma (singular values)
-    sigma = np.diag(sigma)
-
-    # Step-6: reshape and renormalize ratings using weighted/important components/factors
-    all_user_ratings = np.dot(np.dot(U,sigma), Vt) + ratings_mean.reshape(-1,1)
-
-    # Step-7: construct a dataframe with all these user-movie ratings predictions.
-    preds = pd.DataFrame(all_user_ratings, columns=u_t.columns)
-
-    # Recommend articles for a user based on predicted ratings.
-    def recommend_articles(predictions_df, user_id, articles_df, original_ratings_df, num_recs):
-
-        # Get and sort the user's predictions
-        user_row_number = user_id - 1  # user_id starts at 1, not 0
-        sorted_user_predictions = predictions_df.iloc[user_row_number].sort_values(ascending=False)
-
-        # Get the user's data and merge in article information
-        user_data = original_ratings_df[original_ratings_df['user_id'] == user_id]  # Rows with user info
-        user_full = user_data.merge(
-            articles_df,
-            how='left',
-            left_on='url',  # Assuming URL links ratings to articles
-            right_on='url'
-        ).sort_values(['rating'], ascending=False)
-
-        print('User {0} has already rated {1} articles.'.format(user_id, user_full.shape[0]))
-        print('Recommending highest {0} predicted ratings articles not already rated.'.format(num_recs))
-
-        # Recommend the highest predicted rating articles that the user hasn't seen yet
-        recommendations = (
-            articles_df[~articles_df['url'].isin(user_full['url'])]
-            .merge(
-                pd.DataFrame(sorted_user_predictions).reset_index(),
-                how='left',
-                left_on='title',  # Matching titles for predictions
-                right_on='title'
-            )
-            .rename(columns={user_row_number: 'Predictions'})
-            .sort_values('Predictions', ascending=False)
-            .iloc[:num_recs, :]
+        Returns:
+        DataFrame: Recommended articles with similarity scores
+        """
+        # Check if title exists in the dataset
+        if title not in titles:
+            raise ValueError("Title not found in dataset")
+        
+        # Get similarities for the input title
+        similarities = similarity_df.loc[title]
+        
+        # Get most similar articles (excluding the input article itself)
+        similar_articles = similarities.sort_values(ascending=False)[1:num_recommendations+1]
+        
+        # Create recommendations dataframe
+        recommendations = pd.DataFrame({
+            'title': similar_articles.index,
+            'similarity_score': similar_articles.values
+        })
+        
+        # Add URLs to recommendations
+        recommendations = recommendations.merge(
+            articles[['title', 'url']],
+            on='title',
+            how='left'
         )
+        
+        return recommendations.sort_values('similarity_score', ascending=False).to_dict(orient="records")
 
-        return user_full, recommendations
+    # Example usage - Get example recommendations
+    example_title = titles[0]  # Get the first title as an example
+    recommendations = recommend_similar_articles(example_title, num_recommendations=5)
 
-    # What we want to do
-    already_rated, recommendations = recommend_articles(preds,1,articles,ratings,10)
-
-    already_rated.head(5)
-    recommendations.head(5)
+    # Return recommendations as JSON response
+    return jsonify({
+        "message": "Recommendations based on your query.",
+        "recommendations": recommendations
+    })
 
 if __name__ == "__main__":
     app.run(debug=True)
