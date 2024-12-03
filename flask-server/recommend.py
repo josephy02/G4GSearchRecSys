@@ -9,7 +9,7 @@ app = Flask(__name__)
 @app.route("/recommend", methods=["GET"])
 def recommend():
     # Load and prepare data
-    articles = pd.read_csv(r'C:\Users\vvaib\Documents\Info376\G4GSearchRecSys\data\geeksforgeeks_articles.csv', encoding='latin-1', nrows=10000)
+    articles = pd.read_csv(r'../data/geeksforgeeks_articles.csv', encoding='latin-1', nrows=10000)
 
     # Remove duplicates and reset index
     articles = articles.drop_duplicates(subset=['url', 'title']).reset_index(drop=True)
