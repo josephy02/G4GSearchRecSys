@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import SearchBar from './SearchBar';
 import SearchResults from './SearchResults';
 import Recommendations from './Recommendations';
+import '../App.css'
 
 const App = () => {
     const [searchResults, setSearchResults] = useState([]);
