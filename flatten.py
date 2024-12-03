@@ -111,5 +111,5 @@ def process_geeks_directory(root_folder, output_file):
 # Example usage
 if __name__ == "__main__":
     input_folder = "/Users/joeyared/Desktop/INFO_376/geek"  # Replace with your folder path if different
-    output_file = "/Users/joeyared/Desktop/geeksforgeeks_articles.csv"
+    output_file = "./data/geeksforgeeks_articles.csv"
     process_geeks_directory(input_folder, output_file)
