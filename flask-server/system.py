@@ -51,7 +51,7 @@ def search():
 @app.route("/recommend", methods=["GET"])
 def recommend():
     # Load and prepare data
-    articles = pd.read_csv(r'C:\Users\Amrith\Documents\info376\G4GSearchRecSys\data\geeksforgeeks_articles.csv', encoding='latin-1', nrows=10000)
+    articles = pd.read_csv(os.getenv("DATA"), encoding='latin-1', nrows=10000)
 
     # Remove duplicates and reset index
     articles = articles.drop_duplicates(subset=['url', 'title']).reset_index(drop=True)
