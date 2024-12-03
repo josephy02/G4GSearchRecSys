@@ -39,13 +39,11 @@ const App = () => {
             setSearchResults(data.results);
         } catch (error) {
             console.error('Error fetching search results:', error);
-            setError(error.message || 'Failed to fetch search results. Please try again later.');     
+            setError(error.message || 'Failed to fetch search results. Please try again later.');
             setSearchResults([]);
         } finally {
             setIsLoading(false);
         }
-        console.log('Search query:', query);
-        console.log('Search results:', data.results);
     };
 
     const handleClick = async (url) => {
@@ -95,7 +93,6 @@ const App = () => {
                     isLoading={isLoading}
                 />
                 {/* <Recommendations items={recommendations} /> */}
-                {<Recommendations items={recommendations} />}
             </div>
         </div>
     );
