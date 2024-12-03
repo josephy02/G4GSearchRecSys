@@ -9,7 +9,6 @@ import os
 
 app = Flask(__name__)
 
-# CORS(app, resources={r"/*": {"origins": "http://localhost:3000"}})
 CORS(app, resources={r"/*": {"origins": ["http://localhost:3000", "http://172.22.144.1:3000"]}})
 
 pt.java.set_java_home(r"C:\Program Files\Eclipse Adoptium\jdk-17.0.4.101-hotspot")
@@ -43,12 +42,6 @@ def search():
         print(f"Error processing search request: {str(e)}")  # Server-side logging
         return jsonify({"error": "Internal server error"}), 500
 
-# @app.after_request
-# def after_request(response):
-#     response.headers.add('Access-Control-Allow-Origin', 'http://localhost:3000')
-#     response.headers.add('Access-Control-Allow-Headers', 'Content-Type,Authorization')
-#     response.headers.add('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS')
-#     return response
 
 @app.route("/recommend", methods=["GET"])
 def recommend():
