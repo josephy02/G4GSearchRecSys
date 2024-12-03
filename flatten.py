@@ -44,9 +44,27 @@ def extract_text_from_html(file_path):
         )
         title = title_elem.get_text(strip=True) if title_elem else ''
 
+        # Extract URL (try different methods)
+        url = ''
+        # Try canonical URL first
+        canonical = soup.find('link', {'rel': 'canonical'})
+        if canonical:
+            url = canonical.get('href', '')
+        # Try og:url if canonical not found
+        if not url:
+            og_url = soup.find('meta', {'property': 'og:url'})
+            if og_url:
+                url = og_url.get('content', '')
+        # Try actual link if neither found
+        if not url:
+            actual_link = soup.find('meta', {'property': 'article:published_link'})
+            if actual_link:
+                url = actual_link.get('content', '')
+
         return {
             'title': title,
-            'content': text
+            'content': text,
+            'url': url
         }
 
 def clean_text(text):
@@ -99,7 +117,7 @@ def process_geeks_directory(root_folder, output_file):
 
     # Write to CSV
     if processed_data:
-        fieldnames = ['docid', 'title', 'topic', 'content', 'folder_path', 'relative_path']
+        fieldnames = ['docid', 'title', 'topic', 'content', 'url', 'folder_path', 'relative_path']
         with open(output_file, 'w', newline='', encoding='utf-8') as csvfile:
             writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
             writer.writeheader()
@@ -111,5 +129,5 @@ def process_geeks_directory(root_folder, output_file):
 # Example usage
 if __name__ == "__main__":
     input_folder = "/Users/joeyared/Desktop/INFO_376/geek"  # Replace with your folder path if different
-    output_file = "/Users/joeyared/Desktop/geeksforgeeks_articles.csv"
+    output_file = "./data/geeksforgeeks_articles.csv"
     process_geeks_directory(input_folder, output_file)
