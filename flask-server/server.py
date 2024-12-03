@@ -9,7 +9,7 @@ CORS(app, resources={r"/*": {"origins": "http://localhost:3000"}})  # Explicitly
 
 # Initialize index once
 pt.java.set_java_home("C:\\Users\\Amrith\\.jdks\\temurin-11.0.16.1")
-index = pt.IndexFactory.of("C:\\Users\\Amrith\\Documents\\info376\\G4GSearchRecSys\\data\\geek_index\\data.properties")
+index = pt.IndexFactory.of("../data/geek_index/data.properties")
 bm_25 = pt.BatchRetrieve(index, wmodel="BM25")
 
 @app.route("/search")
