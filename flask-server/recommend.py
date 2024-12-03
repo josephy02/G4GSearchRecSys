@@ -16,7 +16,7 @@ app = Flask(__name__)
 def recommend():
 # -*- coding: utf-8 -*-
 #load in data
-    articles = pd.read_csv('/Users/joeyared/Desktop/G4GSearchRecSys/data/geeksforgeeks_articles.csv', encoding='latin-1')
+    articles = pd.read_csv('data\geeksforgeeks_articles.csv', encoding='latin-1')
     articles.head(5)
 
     # Check for duplicates in the index columns
