@@ -2,14 +2,15 @@ from flask import Flask, request, jsonify
 from flask_cors import CORS
 import pandas as pd
 import pyterrier as pt
+import os
 
 app = Flask(__name__)
-CORS(app, resources={r"/*": {"origins": "http://localhost:3000"}})  # Explicitly allow React dev server
-
+CORS(app, resources={r"/*": {"origins": "http://localhost:3000"}})
 
 # Initialize index once
 pt.java.set_java_home("C:\\Users\\Amrith\\.jdks\\temurin-11.0.16.1")
-index = pt.IndexFactory.of("../data/geek_index/data.properties")
+index_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "data", "geek_index", "data.properties")
+index = pt.IndexFactory.of(index_path)
 bm_25 = pt.BatchRetrieve(index, wmodel="BM25")
 
 @app.route("/search")
