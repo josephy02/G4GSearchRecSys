@@ -11,6 +11,7 @@ Implementation of search and recommendation algorithm(s) of the site: https://ww
 pip install Flask
 pip install Pandas
 pip install python-terrier
+pip install python-dotenv
 
 ## Features
 [Key functionalities and capabilities]

@@ -6,13 +6,18 @@ from sklearn.metrics.pairwise import cosine_similarity
 from flask_cors import CORS
 import pyterrier as pt
 import os
+from dotenv import load_dotenv
+
+#Load environment variables
+load_dotenv()
 
 app = Flask(__name__)
 
 # CORS(app, resources={r"/*": {"origins": "http://localhost:3000"}})
 CORS(app, resources={r"/*": {"origins": ["http://localhost:3000", "http://172.22.144.1:3000"]}})
 
-pt.java.set_java_home(r"C:\Program Files\Eclipse Adoptium\jdk-17.0.4.101-hotspot")
+#Set  JDK PATH to in your environment variables
+pt.java.set_java_home(os.getenv("JDK_PATH"))
 index_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "data", "geek_index", "data.properties")
 index = pt.IndexFactory.of(index_path)
 bm_25 = pt.BatchRetrieve(index, wmodel="BM25")
@@ -53,7 +58,7 @@ def search():
 @app.route("/recommend", methods=["GET"])
 def recommend():
     # Load and prepare data
-    articles = pd.read_csv(r'C:\Users\vvaib\Documents\Info376\G4GSearchRecSys\data\geeksforgeeks_articles.csv', encoding='latin-1', nrows=10000)
+    articles = pd.read_csv(r'C:\Users\Amrith\Documents\info376\G4GSearchRecSys\data\geeksforgeeks_articles.csv', encoding='latin-1', nrows=10000)
 
     # Remove duplicates and reset index
     articles = articles.drop_duplicates(subset=['url', 'title']).reset_index(drop=True)
