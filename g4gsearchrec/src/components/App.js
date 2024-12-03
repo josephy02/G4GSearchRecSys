@@ -92,7 +92,7 @@ const App = () => {
                     onClick={handleClick} 
                     isLoading={isLoading}
                 />
-                {/* <Recommendations items={recommendations} /> */}
+                <Recommendations items={recommendations} />
             </div>
         </div>
     );
