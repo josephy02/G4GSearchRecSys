@@ -46,10 +46,34 @@ const App = () => {
         }
     };
 
+    // const handleClick = async (url) => {
+    //     try {
+    //         const response = await fetch(
+    //             `http://localhost:5000/recommend?clicked_url=${encodeURIComponent(url)}`,
+    //             {
+    //                 method: 'GET',
+    //                 headers: {
+    //                     'Accept': 'application/json',
+    //                 },
+    //             }
+    //         );
+            
+    //         if (!response.ok) {
+    //             throw new Error(`HTTP error! status: ${response.status}`);
+    //         }
+            
+    //         const data = await response.json();
+    //         setRecommendations(data.recommendations || []);
+    //     } catch (error) {
+    //         console.error('Error fetching recommendations:', error);
+    //         setRecommendations([]);
+    //     }
+    // };
+
     const handleClick = async (url) => {
         try {
             const response = await fetch(
-                `http://localhost:5000/recommend?clicked_url=${encodeURIComponent(url)}`,
+                `http://localhost:5000/recommend?url=${encodeURIComponent(url)}`,  // Changed from clicked_url to url
                 {
                     method: 'GET',
                     headers: {
@@ -59,7 +83,8 @@ const App = () => {
             );
             
             if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
+                const errorText = await response.text();
+                throw new Error(`HTTP error! status: ${response.status}, message: ${errorText}`);
             }
             
             const data = await response.json();
@@ -69,7 +94,7 @@ const App = () => {
             setRecommendations([]);
         }
     };
-
+    
     return (
         <div className="min-h-screen bg-gray-50 py-8">
             <div className="container mx-auto">
