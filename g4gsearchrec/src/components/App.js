@@ -13,10 +13,9 @@ const App = () => {
     const handleSearch = async (query) => {
         setError(null);
         setIsLoading(true);
-
         try {
             const response = await fetch(
-                `http://localhost:5000/search?query=${encodeURIComponent(query)}`,
+                `https://mdvmvbnt-5000.usw2.devtunnels.ms/search?query=${encodeURIComponent(query)}`,
                 {
                     method: 'GET',
                     headers: {
@@ -49,7 +48,7 @@ const App = () => {
     const handleClick = async (url) => {
         try {
             const response = await fetch(
-                `http://localhost:5000/recommend?clicked_url=${encodeURIComponent(url)}`,
+                `https://mdvmvbnt-5000.usw2.devtunnels.ms/recommend?clicked_url=${encodeURIComponent(url)}`,
                 {
                     method: 'GET',
                     headers: {
