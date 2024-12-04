@@ -50,7 +50,7 @@ def search():
 
 @app.route("/recommend", methods=["GET"])
 def recommend():
-    # Add DATA environment variable
+    # Load and prepare data
     articles = pd.read_csv(os.getenv("DATA"), encoding='latin-1', nrows=10000)
 
     # Remove duplicates and reset index
