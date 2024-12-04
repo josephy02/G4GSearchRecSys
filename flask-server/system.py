@@ -13,7 +13,7 @@ load_dotenv()
 
 app = Flask(__name__)
 
-CORS(app, resources={r"/*": {"origins": ["http://localhost:3000", "http://172.22.144.1:3000"]}})
+CORS(app, resources={r"/*": {"origins": ["https://mdvmvbnt-3000.usw2.devtunnels.ms", "http://172.22.144.1:3000"]}})
 
 #Set JDK_PATH to in your environment variables
 pt.java.set_java_home(os.getenv("JDK_PATH"))
