@@ -13,6 +13,9 @@ const App = () => {
     const handleSearch = async (query) => {
         setError(null);
         setIsLoading(true);
+        // Clear previous recommendations when performing a new search
+        setRecommendations([]);
+        
         try {
             const response = await fetch(
                 `https://mdvmvbnt-5000.usw2.devtunnels.ms/search?query=${encodeURIComponent(query)}`,
@@ -45,30 +48,6 @@ const App = () => {
         }
     };
 
-    // const handleClick = async (url) => {
-    //     try {
-    //         const response = await fetch(
-    //             `http://localhost:5000/recommend?clicked_url=${encodeURIComponent(url)}`,
-    //             {
-    //                 method: 'GET',
-    //                 headers: {
-    //                     'Accept': 'application/json',
-    //                 },
-    //             }
-    //         );
-            
-    //         if (!response.ok) {
-    //             throw new Error(`HTTP error! status: ${response.status}`);
-    //         }
-            
-    //         const data = await response.json();
-    //         setRecommendations(data.recommendations || []);
-    //     } catch (error) {
-    //         console.error('Error fetching recommendations:', error);
-    //         setRecommendations([]);
-    //     }
-    // };
-
     const handleClick = async (url) => {
         try {
             const response = await fetch(
@@ -82,12 +61,12 @@ const App = () => {
             );
             
             if (!response.ok) {
-                const errorText = await response.text();
-                throw new Error(`HTTP error! status: ${response.status}, message: ${errorText}`);
+                throw new Error(`HTTP error! status: ${response.status}`);
             }
             
             const data = await response.json();
             setRecommendations(data.recommendations || []);
+            
         } catch (error) {
             console.error('Error fetching recommendations:', error);
             setRecommendations([]);
