@@ -31,7 +31,7 @@ def search():
             return jsonify({"error": "Query parameter is required"}), 400
 
         query = pd.DataFrame([["q1", query_text]], columns=["qid", "query"])
-        
+
         results = bm_25.transform(query)
 
         search_results = []
@@ -46,10 +46,10 @@ def search():
                 # Remove './geek/' prefix and '.html' suffix
                 # Handle potential nested directories or index files
                 relative_path = filename.replace('./geek/', '').replace('index.html', '').rstrip('.html')
-                
+
                 # Ensure clean URL by removing any trailing slashes
                 relative_path = relative_path.rstrip('/')
-                
+
                 url = f"{BASE_URL}/{relative_path}/"
             except Exception as e:
                 print(f"Error generating URL for filename {filename}: {e}")
@@ -58,7 +58,7 @@ def search():
             search_results.append({"url": url, "title": url})
 
         return jsonify({"results": search_results})
-    
+
     except Exception as e:
         print(f"Error processing search request: {str(e)}")  # Server-side logging
         return jsonify({"error": "Internal server error"}), 500
@@ -109,23 +109,23 @@ def recommend():
         """
         # Find the title corresponding to the input URL
         matching_rows = articles[articles['url'] == input_url]
-        
+
         if matching_rows.empty:
             return []
-        
+
         # Get the title of the input URL
         input_title = matching_rows.iloc[0]['title']
-        
+
         # Check if title exists in the dataset
         if input_title not in titles:
             return []
-        
+
         # Get similarities for the input title
         similarities = similarity_df.loc[input_title]
-        
+
         # Get most similar articles (excluding the input article itself)
         similar_articles = similarities.sort_values(ascending=False)[1:num_recommendations+1]
-        
+
         # Create recommendations list
         recommendations = []
         for title, similarity_score in similar_articles.items():
@@ -136,7 +136,7 @@ def recommend():
                 'url': article_url,
                 'similarity_score': float(similarity_score)
             })
-        
+
         return recommendations
 
     # Get recommendations based on the input URL
