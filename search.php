@@ -54,7 +54,7 @@
 
     exec("rm query.py");
     exec("rm output");
-    }
+  }
 ?>
 </body>
 </html>
