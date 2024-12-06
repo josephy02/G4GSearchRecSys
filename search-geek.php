@@ -230,9 +230,9 @@
                     echo "<h2>Search Results</h2><ol>";
                     while (($line = fgets($stream)) != false) {
                         $clean_line = preg_replace('/\s+/', ',', $line);
-                        $record = explode("./", $clean_line);
+                        $record = explode('/', $clean_line);
                         $line = fgets($stream);
-                        echo "<li><a href=\"http://$record[1]\">$line</a></li>";
+                        echo "<li><a href=\"http://geeksforgeeks.org/$record[2]\">http://geeksforgeeks.org/$record[2]</a></li>";
                     }
                     echo "</ol>";
                     fclose($stream);
